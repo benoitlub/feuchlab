@@ -9,6 +9,7 @@ import './ghost-frame.css';
 import './instant.css';
 import './training.css';
 import './pineal.css';
+import './quick-games.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode><LabRoot /></React.StrictMode>,
