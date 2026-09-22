@@ -9,8 +9,8 @@ async function mission(prompt:string):Promise<unknown>{
  try{
   const response=await fetch(API+'/mission',{method:'POST',headers:{'content-type':'application/json'},signal:controller.signal,body:JSON.stringify({operationId:'feuch_dice_'+crypto.randomUUID(),title:'Feuch Dice — habillage de manigances',objective:'Produire des textes humoristiques courts sans modifier les règles des dés.',requiredCapabilities:['game.challenge.suggest'],context:{id:'feuch-dice',label:'Feuch Dice',metadata:{source:'feuchlab'}},prompt})});
   if(!response.ok)throw new Error('Octopus HTTP '+response.status);
-  const data=await response.json() as {status?:string;output?:{text?:unknown}};
-  if(data.status!=='completed')throw new Error('Mission '+(data.status??'sans statut'));
+  const data=await response.json() as {status?:string;summary?:string;output?:{text?:unknown};resourceResult?:{message?:string}};
+  if(data.status!=='completed')throw new Error([data.summary,data.resourceResult?.message].filter(Boolean).join(' · ')||'Mission '+(data.status??'sans statut'));
   if(typeof data.output?.text!=='string')throw new Error('Réponse Octopus sans texte');
   return parseJson(data.output.text);
  }finally{clearTimeout(timer);}
