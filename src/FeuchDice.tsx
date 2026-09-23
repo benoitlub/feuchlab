@@ -3,18 +3,35 @@ import { generateDiceAliases, improveDiceChallenges } from './domain/feuch-dice-
 import './feuch-dice.css';
 
 type Player = { name: string; dignity: number };
-type Challenge = { title: string; instruction: string; kind: 'sum'|'pair'|'value'|'odd'|'sequence'|'triple'; target?: number; rolls: number };
+type Challenge = { title: string; instruction: string; kind: 'sum'|'pair'|'value'|'odd'|'sequence'|'triple'|'exact'|'distinct'|'exclude'|'double'|'spread'|'evenSum'; target?: number; rolls: number };
 const aliases = ['SAUCISSE SUPRÊME','BARON DU SLIP','CAPITAINE CLAQUETTE','JEAN-MICHEL SEUM','DUC DE LA LOOSE','GÉNÉRAL FLANBY','MAÎTRE BOULETTE','COMTE DE LA CHAUSSETTE'];
 const rand = () => crypto.getRandomValues(new Uint32Array(1))[0]! % 6 + 1;
 function category(d: number[]) { const s=[...d].sort((a,b)=>a-b); return s[0]===s[2]?'BRELAN':s[0]===s[1]||s[1]===s[2]?'PAIRE':s[0]!+1===s[1]&&s[1]!+1===s[2]?'SUITE':'BAZAR'; }
+// Local, verifiable objectives: Octopus only supplies flavor text, never dice rules.
 function challenges(cat:string, d:number[]):Challenge[] {
  const v=d[0]!;
- if(cat==='BRELAN') return [{title:'LE TRIPLE RIDICULE',instruction:'Obtiens un brelan en trois lancers. Tu peux garder des dés.',kind:'triple',rolls:3},{title:'LA GRANDE GUEULE',instruction:`Annonce le ${v}, puis fais apparaître ce chiffre en deux lancers.`,kind:'value',target:v,rolls:2},{title:'LE COMPTE EST MAUVAIS',instruction:'Obtiens au moins 13 avec trois dés, en deux lancers.',kind:'sum',target:13,rolls:2}];
- if(cat==='SUITE') return [{title:'LE DOMINO',instruction:'Obtiens trois chiffres consécutifs en trois lancers.',kind:'sequence',rolls:3},{title:'LA GRANDE GUEULE',instruction:`Fais apparaître le ${v} en deux lancers.`,kind:'value',target:v,rolls:2},{title:'LA PARITÉ DU SEUM',instruction:'Obtiens trois dés de même parité en deux lancers.',kind:'odd',rolls:2}];
- if(cat==='PAIRE') return [{title:'LE DÉ DE TROP',instruction:'Obtiens une paire en deux lancers.',kind:'pair',rolls:2},{title:'LA GRANDE GUEULE',instruction:`Fais apparaître le ${v} en deux lancers.`,kind:'value',target:v,rolls:2},{title:'LE COMPTE EST MAUVAIS',instruction:'Obtiens au moins 12 avec trois dés en deux lancers.',kind:'sum',target:12,rolls:2}];
- return [{title:'LA GRANDE GUEULE',instruction:`Fais apparaître le ${v} en deux lancers.`,kind:'value',target:v,rolls:2},{title:'LA PARITÉ DU SEUM',instruction:'Obtiens trois dés de même parité en deux lancers.',kind:'odd',rolls:2},{title:'LE COMPTE EST MAUVAIS',instruction:'Obtiens au moins 11 avec trois dés en deux lancers.',kind:'sum',target:11,rolls:2}];
+ const total=d.reduce((a,b)=>a+b,0);
+ const absent=[1,2,3,4,5,6].filter(n=>!d.includes(n));
+ const forbidden=absent.length?absent[rand()%absent.length]!:((v%6)+1);
+ const pool:Challenge[]=[
+  {title:'LE COMPTE EST BON',instruction:`Obtiens exactement ${total} avec tes trois dés en trois lancers.`,kind:'exact',target:total,rolls:3},
+  {title:'TOUS DIFFÉRENTS',instruction:'Termine avec trois valeurs différentes en deux lancers.',kind:'distinct',rolls:2},
+  {title:'LE CHIFFRE BANNI',instruction:`Termine sans aucun ${forbidden} en deux lancers.`,kind:'exclude',target:forbidden,rolls:2},
+  {title:'LE DOUBLE JEU',instruction:`Obtiens au moins deux ${v} en trois lancers.`,kind:'double',target:v,rolls:3},
+  {title:'LE GRAND ÉCART',instruction:'Obtiens un écart d’au moins 4 entre ton plus petit et ton plus grand dé en deux lancers.',kind:'spread',target:4,rolls:2},
+  {title:'LA SOMME PAIRE',instruction:'Obtiens une somme paire avec tes trois dés en deux lancers.',kind:'evenSum',rolls:2},
+  {title:'LA GRANDE GUEULE',instruction:`Fais apparaître le ${v} en deux lancers.`,kind:'value',target:v,rolls:2},
+  {title:'LA PARITÉ DU SEUM',instruction:'Obtiens trois dés de même parité en trois lancers.',kind:'odd',rolls:3},
+  {title:'LE COMPTE EST MAUVAIS',instruction:'Obtiens au moins 12 avec tes trois dés en deux lancers.',kind:'sum',target:12,rolls:2},
+  {title:'LE DÉ DE TROP',instruction:'Obtiens une paire en deux lancers.',kind:'pair',rolls:2},
+  {title:'LE DOMINO',instruction:'Obtiens trois chiffres consécutifs en trois lancers.',kind:'sequence',rolls:3},
+  {title:'LE TRIPLE RIDICULE',instruction:'Obtiens un brelan en trois lancers.',kind:'triple',rolls:3},
+ ];
+ // Rotate a different selection across attacks while keeping three distinct objectives.
+ const offset=(rand()-1+(['BRELAN','PAIRE','SUITE','BAZAR'].indexOf(cat)*3))%pool.length;
+ return [pool[offset]!,pool[(offset+4)%pool.length]!,pool[(offset+8)%pool.length]!];
 }
-function succeeds(c:Challenge,d:number[]) { const s=[...d].sort((a,b)=>a-b); switch(c.kind){case 'sum':return d.reduce((a,b)=>a+b,0)>=c.target!;case 'pair':return s[0]===s[1]||s[1]===s[2];case 'value':return d.includes(c.target!);case 'odd':return d.every(x=>x%2===d[0]!%2);case 'sequence':return s[0]!+1===s[1]&&s[1]!+1===s[2];case 'triple':return s[0]===s[2];} }
+function succeeds(c:Challenge,d:number[]) { const s=[...d].sort((a,b)=>a-b); switch(c.kind){case 'sum':return d.reduce((a,b)=>a+b,0)>=c.target!;case 'pair':return s[0]===s[1]||s[1]===s[2];case 'value':return d.includes(c.target!);case 'odd':return d.every(x=>x%2===d[0]!%2);case 'sequence':return s[0]!+1===s[1]&&s[1]!+1===s[2];case 'triple':return s[0]===s[2];case 'exact':return d.reduce((a,b)=>a+b,0)===c.target;case 'distinct':return new Set(d).size===3;case 'exclude':return !d.includes(c.target!);case 'double':return d.filter(x=>x===c.target).length>=2;case 'spread':return s[2]!-s[0]!>=c.target!;case 'evenSum':return d.reduce((a,b)=>a+b,0)%2===0;} }
 type Phase='attack'|'choose'|'handoff'|'defend'|'verdict'|'end';
 export default function FeuchDice({onBack}:{onBack:()=>void}) {
  const [players,setPlayers]=useState<Player[]>([{name:aliases[0]!,dignity:3},{name:aliases[1]!,dignity:3}]);
