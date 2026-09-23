@@ -1,0 +1,5 @@
+export type LabSession={id:string;date:string;protocol:string;score:number|null;total:number|null;detail?:string};
+const KEY='fli_sessions_v1';
+export function loadLabSessions():LabSession[]{try{const value=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(value)?value.filter((x):x is LabSession=>x&&typeof x.id==='string'&&typeof x.date==='string'&&typeof x.protocol==='string').slice(-300):[]}catch{return []}}
+export function recordLabSession(protocol:string,score:number|null,total:number|null,detail?:string):void{const entry:LabSession={id:crypto.randomUUID(),date:new Date().toISOString(),protocol,score,total,detail};try{localStorage.setItem(KEY,JSON.stringify([...loadLabSessions(),entry].slice(-300)));window.dispatchEvent(new Event('fli-memory-updated'))}catch{/* Storage may be unavailable. Never interrupt a game. */}}
+export function exportLabSessions():void{const blob=new Blob([JSON.stringify({version:1,sessions:loadLabSessions()},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='feuchlab-memory.json';a.click();URL.revokeObjectURL(url)}
