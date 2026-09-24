@@ -10,3 +10,5 @@
 .instant-choices button:disabled{opacity:.55;cursor:default}
 @keyframes verdict-pop{0%{transform:scale(.65);opacity:0}65%{transform:scale(1.13);opacity:1}100%{transform:scale(1);opacity:1}}
 @media(prefers-reduced-motion:reduce){.instant-orb.verdict-good,.instant-orb.verdict-bad,.instant-reveal{animation:none}}
+
+.feel-breakdown{width:min(100%,440px);padding:14px;border:1px solid #315b45;border-radius:14px;background:#0a1b11;text-align:left;display:grid;gap:9px}.feel-breakdown h2{font-size:12px;letter-spacing:.12em;margin:0;color:#a5ffc4}.feel-breakdown p{font-size:12px;line-height:1.4;color:#c2dccb;margin:0}.feel-breakdown small{font-size:10px;color:#86a994}.feel-meter{height:12px;background:#24352b;border-radius:99px;overflow:hidden}.feel-meter span{display:block;height:100%;background:#74eaa0;border-radius:99px}.feel-meter-labels{display:flex;justify-content:space-between;gap:8px;font-size:9px;color:#a5ffc4;letter-spacing:.04em}.instant-panel.results{overflow-y:auto;justify-content:flex-start;padding-block:24px}
