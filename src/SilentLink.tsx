@@ -27,6 +27,7 @@ export default function SilentLink({ onBack }: { onBack: () => void }) {
   const pValue = phase === 'complete' ? exactBinomialTail(score, totalTrials) : null;
 
   useEffect(() => () => socketRef.current?.close(1000, 'leaving'), []);
+  useEffect(() => { if (!room || !role || phase !== 'linked') return; const poll = window.setInterval(() => { void refreshStatus(room); }, 2500); return () => window.clearInterval(poll); }, [room, role, phase]);
 
   async function refreshStatus(code = room) {
     if (!code) return;
@@ -38,6 +39,7 @@ export default function SilentLink({ onBack }: { onBack: () => void }) {
 
   function attach(code: string, nextRole: FeuchRole) {
     socketRef.current?.close(1000, 'switching');
+    setConnected([]);
     const socket = connectFeuchRoom(code, nextRole);
     socketRef.current = socket;
     setRoom(code);
@@ -49,13 +51,13 @@ export default function SilentLink({ onBack }: { onBack: () => void }) {
       setMessage(nextRole === 'A' ? 'NODE A connecté. En attente du NODE B.' : 'NODE B connecté. En attente du protocole.');
       void refreshStatus(code);
     });
-    socket.addEventListener('close', () => setMessage('Lien interrompu. Rechargez ou reconnectez les deux téléphones.'));
+    socket.addEventListener('close', event => { if (socketRef.current !== socket) return; setConnected([]); setMessage(`Lien interrompu (${event.code}). Rechargez ou reconnectez les deux téléphones.`); });
     socket.addEventListener('error', () => setMessage('Erreur de liaison WebSocket.'));
     socket.addEventListener('message', event => {
       let data: EventPayload;
       try { data = JSON.parse(String(event.data)) as EventPayload; } catch { return; }
       const type = typeof data.type === 'string' ? data.type : '';
-      if (type === 'participant.joined' || type === 'participant.left') void refreshStatus(code);
+      if (type === 'participant.joined' || type === 'participant.left') { if (Array.isArray(data.connected)) setConnected(data.connected.filter((r): r is FeuchRole => r === 'A' || r === 'B')); else void refreshStatus(code); }
       if (type === 'session.started') {
         setTrial(0); setScore(0); setGuess(null); setTarget(null); setCorrect(null);
         if (typeof data.totalTrials === 'number') setTotalTrials(data.totalTrials);
@@ -114,7 +116,7 @@ export default function SilentLink({ onBack }: { onBack: () => void }) {
 
   function startSession() {
     if (!paired) { setMessage('Il faut deux téléphones connectés.'); return; }
-    sendFeuch(socketRef.current, 'session.start', { totalTrials: 20 });
+    if (!sendFeuch(socketRef.current, 'session.start', { totalTrials: 20 })) setMessage('Connexion non ouverte. Rechargez la salle sur les deux téléphones.');
   }
 
   function sendGuess(choice: BinaryChoice) {
@@ -149,7 +151,7 @@ export default function SilentLink({ onBack }: { onBack: () => void }) {
       <div className="room-code"><span>ROOM</span><strong>{room}</strong></div>
       {role === 'A' && <><p>Faites ouvrir ce lien sur le deuxième téléphone :</p><code>{shareLink}</code><button className="primary big" disabled={!paired} onClick={startSession}>{paired ? 'LANCER 20 ESSAIS' : 'EN ATTENTE DU NODE B'}</button></>}
       {role === 'B' && <p>Vous êtes le récepteur. Le téléphone A lancera la session quand les deux nœuds seront liés.</p>}
-      <small>{message}</small>
+      <small>{message}</small><small>Si les deux téléphones affichent « en attente », vérifiez qu’ils utilisent exactement le même code, puis rechargez les deux pages.</small>
     </div>}
 
     {role && phase === 'trial' && <div className="silent-trial">
