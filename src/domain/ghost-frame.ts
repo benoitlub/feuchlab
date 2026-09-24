@@ -1,11 +1,11 @@
 export type GhostSymbol = 'triangle'|'circle'|'cross'|'spiral'|'eye'|'wave';
 export type GhostAnswer = GhostSymbol|'nothing';
-export type GhostTrial = { trial:number; target:GhostSymbol|null; answer:GhostAnswer; correct:boolean; responseMs:number; plannedMs:number; measuredMs:number; timestamp:string };
+export type GhostTrial = { trial:number; target:GhostSymbol|null; answer:GhostAnswer; correct:boolean; responseMs:number; plannedMs:number; measuredMs:number; timestamp:string; sizePct?:number; xPct?:number; yPct?:number; interference?:'reduced'|'standard'|'strong' };
 export type GhostStats = { total:number; correct:number; hits:number; misses:number; falsePositives:number; correctRejections:number; accuracy:number; meanResponseMs:number; meanStimulusMs:number };
 export type ExperimentSession<TMeasurements,TResults> = { id:string; protocolId:string; protocolVersion:string; startedAt:string; completedAt:string; status:'completed'; measurements:TMeasurements; results:TResults };
 export const GHOST_SYMBOLS: GhostSymbol[]=['triangle','circle','cross','spiral','eye','wave'];
-export const TOTAL_GHOST_TRIALS=20;
+export const TOTAL_GHOST_TRIALS=12;
 export function randomTarget():GhostSymbol|null { if(crypto.getRandomValues(new Uint32Array(1))[0]%4===0)return null; return GHOST_SYMBOLS[crypto.getRandomValues(new Uint32Array(1))[0]%GHOST_SYMBOLS.length]; }
-export function plannedDuration(trial:number){ return [120,80,50][(trial-1)%3]; }
+export function plannedDuration(trial:number){ return [140,65,95,45,120,75,55,110,40,85,60,100][(trial-1)%12]; }
 export function analyzeGhostTrials(trials:GhostTrial[]):GhostStats { const total=trials.length; const correct=trials.filter(t=>t.correct).length; const hits=trials.filter(t=>t.target!==null&&t.answer===t.target).length; const misses=trials.filter(t=>t.target!==null&&t.answer!==t.target).length; const falsePositives=trials.filter(t=>t.target===null&&t.answer!=='nothing').length; const correctRejections=trials.filter(t=>t.target===null&&t.answer==='nothing').length; const mean=(xs:number[])=>xs.length?xs.reduce((a,b)=>a+b,0)/xs.length:0; return {total,correct,hits,misses,falsePositives,correctRejections,accuracy:total?Number((correct/total*100).toFixed(1)):0,meanResponseMs:Math.round(mean(trials.map(t=>t.responseMs))),meanStimulusMs:Number(mean(trials.map(t=>t.measuredMs)).toFixed(1))}; }
 export function saveGhostSession(session:ExperimentSession<GhostTrial[],GhostStats>){ try { const key='feuchlab.sessions.v1'; const existing=JSON.parse(localStorage.getItem(key)||'[]') as unknown[]; localStorage.setItem(key,JSON.stringify([...existing.slice(-99),session])); } catch { /* storage is optional */ } }
