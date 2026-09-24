@@ -22,3 +22,6 @@
 
 /* Variable target position and size; overlays remain identical on blank trials. */
 .ghost-field .flash-symbol.ghost-variable-symbol{inset:auto;display:block;width:auto;height:auto;line-height:1;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none}
+
+/* Expanded glyph library: scroll rather than clip on compact screens. */
+.ghost-panel:has(.symbol-grid){justify-content:flex-start;overflow-y:auto;overscroll-behavior:contain}.ghost-panel:has(.answer-grid){justify-content:flex-start;overflow-y:auto;overscroll-behavior:contain}.symbol-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.symbol-grid div{min-width:0}.symbol-grid small{overflow-wrap:anywhere}.answer-grid button small{overflow-wrap:anywhere}.ghost-panel:has(.answer-grid) .answer-grid{flex:0 0 auto}
