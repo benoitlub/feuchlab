@@ -8,29 +8,35 @@ type Challenge = { title: string; instruction: string; kind: 'sum'|'pair'|'value
 const aliases = ['SAUCISSE SUPRÊME','BARON DU SLIP','CAPITAINE CLAQUETTE','JEAN-MICHEL SEUM','DUC DE LA LOOSE','GÉNÉRAL FLANBY','MAÎTRE BOULETTE','COMTE DE LA CHAUSSETTE'];
 const rand = () => crypto.getRandomValues(new Uint32Array(1))[0]! % 6 + 1;
 function category(d: number[]) { const s=[...d].sort((a,b)=>a-b); return s[0]===s[2]?'BRELAN':s[0]===s[1]||s[1]===s[2]?'PAIRE':s[0]!+1===s[1]&&s[1]!+1===s[2]?'SUITE':'BAZAR'; }
-// Local, verifiable objectives: Octopus only supplies flavor text, never dice rules.
+// The rolled combination determines all three objectives; Octopus only renames them.
 function challenges(cat:string, d:number[]):Challenge[] {
- const v=d[0]!;
+ const sorted=[...d].sort((a,b)=>a-b);
  const total=d.reduce((a,b)=>a+b,0);
- const absent=[1,2,3,4,5,6].filter(n=>!d.includes(n));
- const forbidden=absent.length?absent[rand()%absent.length]!:((v%6)+1);
- const pool:Challenge[]=[
-  {title:'LE COMPTE EST BON',instruction:`Obtiens exactement ${total} avec tes trois dés en trois lancers.`,kind:'exact',target:total,rolls:3},
-  {title:'TOUS DIFFÉRENTS',instruction:'Termine avec trois valeurs différentes en deux lancers.',kind:'distinct',rolls:2},
-  {title:'LE CHIFFRE BANNI',instruction:`Termine sans aucun ${forbidden} en deux lancers.`,kind:'exclude',target:forbidden,rolls:2},
-  {title:'LE DOUBLE JEU',instruction:`Obtiens au moins deux ${v} en trois lancers.`,kind:'double',target:v,rolls:3},
-  {title:'LE GRAND ÉCART',instruction:'Obtiens un écart d’au moins 4 entre ton plus petit et ton plus grand dé en deux lancers.',kind:'spread',target:4,rolls:2},
-  {title:'LA SOMME PAIRE',instruction:'Obtiens une somme paire avec tes trois dés en deux lancers.',kind:'evenSum',rolls:2},
-  {title:'LA GRANDE GUEULE',instruction:`Fais apparaître le ${v} en deux lancers.`,kind:'value',target:v,rolls:2},
-  {title:'LA PARITÉ DU SEUM',instruction:'Obtiens trois dés de même parité en trois lancers.',kind:'odd',rolls:3},
-  {title:'LE COMPTE EST MAUVAIS',instruction:'Obtiens au moins 12 avec tes trois dés en deux lancers.',kind:'sum',target:12,rolls:2},
-  {title:'LE DÉ DE TROP',instruction:'Obtiens une paire en deux lancers.',kind:'pair',rolls:2},
-  {title:'LE DOMINO',instruction:'Obtiens trois chiffres consécutifs en trois lancers.',kind:'sequence',rolls:3},
-  {title:'LE TRIPLE RIDICULE',instruction:'Obtiens un brelan en trois lancers.',kind:'triple',rolls:3},
+ const repeated=sorted.find(v=>d.filter(x=>x===v).length>=2) ?? sorted[0]!;
+ const single=sorted.find(v=>v!==repeated) ?? repeated;
+ const middle=sorted[1]!;
+ const exact:Challenge={title:'LE COMPTE EST BON',instruction:`Reproduis exactement la somme ${total} de ton tirage en trois lancers.`,kind:'exact',target:total,rolls:3};
+ if(cat==='BRELAN')return [
+  {title:'LE CLONE DU FEUCH',instruction:`Reproduis le brelan de ${repeated} en trois lancers.`,kind:'double',target:repeated,rolls:3},
+  {title:'LA TRINITÉ DU SEUM',instruction:'Obtiens trois dés identiques en trois lancers.',kind:'triple',rolls:3},
+  exact
  ];
- // Rotate a different selection across attacks while keeping three distinct objectives.
- const offset=(rand()-1+(['BRELAN','PAIRE','SUITE','BAZAR'].indexOf(cat)*3))%pool.length;
- return [pool[offset]!,pool[(offset+4)%pool.length]!,pool[(offset+8)%pool.length]!];
+ if(cat==='PAIRE')return [
+  {title:'LE DOUBLE JEU',instruction:`Obtiens au moins deux ${repeated} en trois lancers.`,kind:'double',target:repeated,rolls:3},
+  {title:'LE TROISIÈME LARRON',instruction:`Fais apparaître le ${single}, l’intrus de ton tirage, en deux lancers.`,kind:'value',target:single,rolls:2},
+  exact
+ ];
+ if(cat==='SUITE')return [
+  {title:'LE DOMINO',instruction:`Reproduis une suite de trois valeurs consécutives comme ${sorted.join('-')} en trois lancers.`,kind:'sequence',rolls:3},
+  {title:'LE MAILLON DU MILIEU',instruction:`Fais apparaître le ${middle}, au centre de ta suite, en deux lancers.`,kind:'value',target:middle,rolls:2},
+  exact
+ ];
+ const spread=sorted[2]!-sorted[0]!;
+ return [
+  {title:'LE BAZAR ORGANISÉ',instruction:'Obtiens trois valeurs différentes en deux lancers.',kind:'distinct',rolls:2},
+  {title:'LE GRAND ÉCART',instruction:`Obtiens un écart d’au moins ${spread} entre le plus petit et le plus grand dé en trois lancers.`,kind:'spread',target:spread,rolls:3},
+  exact
+ ];
 }
 function succeeds(c:Challenge,d:number[]) { const s=[...d].sort((a,b)=>a-b); switch(c.kind){case 'sum':return d.reduce((a,b)=>a+b,0)>=c.target!;case 'pair':return s[0]===s[1]||s[1]===s[2];case 'value':return d.includes(c.target!);case 'odd':return d.every(x=>x%2===d[0]!%2);case 'sequence':return s[0]!+1===s[1]&&s[1]!+1===s[2];case 'triple':return s[0]===s[2];case 'exact':return d.reduce((a,b)=>a+b,0)===c.target;case 'distinct':return new Set(d).size===3;case 'exclude':return !d.includes(c.target!);case 'double':return d.filter(x=>x===c.target).length>=2;case 'spread':return s[2]!-s[0]!>=c.target!;case 'evenSum':return d.reduce((a,b)=>a+b,0)%2===0;} }
 type Phase='attack'|'choose'|'handoff'|'defend'|'verdict'|'end';
@@ -64,7 +70,7 @@ export default function FeuchDice({onBack}:{onBack:()=>void}) {
  const restart=()=>{requestId.current++;const shuffled=[...aliases].sort(()=>Math.random()-.5);setPlayers([{name:shuffled[0]!,dignity:3},{name:shuffled[1]!,dignity:3}]);setAttacker(0);setChallenge(null);resetDice();setPhase('attack');setComment('Marty : « Nouveau départ. Même erreur de jugement. »');generateDiceAliases().then(names=>setPlayers(prev=>prev.map((p,i)=>({...p,name:names[i]!})))).catch(()=>{});};
  return <main className="fd-screen"><header className="fd-header"><button onClick={onBack}>← LABO</button><strong>FEUCH DICE</strong><span>3 DÉS · 0 DIGNITÉ</span></header>
  <div className={'fd-octopus fd-octopus-'+octopusState} role="status" aria-live="polite"><strong>🐙 OCTOPUS {octopusState==='loading'?'· CONNEXION…':octopusState==='live'?'· ACTIF':'· SECOURS LOCAL'}</strong><span>{octopusDetail}</span></div><section className="fd-players">{players.map((p,i)=><div className={'fd-player '+(i===attacker?'active':'')} key={i}><small>{p.name}</small><div className="fd-bricks" aria-label={p.dignity+' points de dignité'}>{[0,1,2].map(n=><i key={n} className={n<p.dignity?'full':'empty'}/>)}</div></div>)}</section>
- <section className="fd-led"><small>{phase==='attack'?'ATTAQUE · '+current.name:phase==='choose'?'COMBINAISON : '+category(values):phase==='end'?'FIN DE PARTIE':phase==='verdict'?'VERDICT':challenge?'DÉFI RIDICULE':'FEUCH DICE'}</small><h1>{phase==='attack'?'FABRIQUE TON COUP BAS':phase==='choose'?'CHOISIS TA MANIGANCE':phase==='handoff'?'PASSE LE TÉLÉPHONE':phase==='defend'?challenge?.title:phase==='verdict'?(won?'DIGNITÉ SAUVÉE':'TU TE TAPES LA HONTE'):players[attacker]!.name+' GAGNE'}</h1><p>{phase==='attack'?'Trois lancers maximum. Garde les dés qui t’arrangent pour obtenir des gages que ton adversaire devra relever afin d’échapper au Seum.':phase==='choose'?'Une combinaison, trois façons de lui nuire.':phase==='handoff'?`À ${players[defender]!.name} de relever le défi.`:phase==='defend'?challenge?.instruction:phase==='verdict'?(won?'Aucune brique perdue. Cette fois.':'−1 brique de dignité.'): 'Le seum est officiellement attribué.'}</p></section>
+ <section className="fd-led"><small>{phase==='attack'?'ATTAQUE · '+current.name:phase==='choose'?'COMBINAISON : '+category(values):phase==='end'?'FIN DE PARTIE':phase==='verdict'?'VERDICT':challenge?'DÉFI RIDICULE':'FEUCH DICE'}</small><h1>{phase==='attack'?'FABRIQUE TON COUP BAS':phase==='choose'?'CHOISIS TA MANIGANCE':phase==='handoff'?'PASSE LE TÉLÉPHONE':phase==='defend'?challenge?.title:phase==='verdict'?(won?'DIGNITÉ SAUVÉE':'TU TE TAPES LA HONTE'):players[attacker]!.name+' GAGNE'}</h1><p>{phase==='attack'?'Trois lancers maximum. Garde les dés qui t’arrangent pour obtenir des gages que ton adversaire devra relever afin d’échapper au Seum.':phase==='choose'?'Trois manigances construites à partir de tes dés : combinaison, valeurs et somme.':phase==='handoff'?`À ${players[defender]!.name} de relever le défi.`:phase==='defend'?challenge?.instruction:phase==='verdict'?(won?'Aucune brique perdue. Cette fois.':'−1 brique de dignité.'): 'Le seum est officiellement attribué.'}</p></section>
  <section className="fd-comment"><small>MARTY // COMMENTAIRES</small><p>{comment}</p></section>
  {phase==='choose'&&<section className="fd-options"><small className="fd-ai-status" aria-live="polite">{octopusState==='loading'?'🐙 OCTOPUS RÉFLÉCHIT · OPTIONS LOCALES JOUABLES':octopusState==='live'?'🐙 OCTOPUS · TITRES AMÉLIORÉS':'MODE LOCAL · MANIGANCES DE SECOURS'}</small>{options.map((c,i)=><button key={i} onClick={()=>choose(c)}><small>MANIGANCE 0{i+1}</small><strong>{c.title}</strong><span>{c.instruction}</span><b>CHOISIR ↗</b></button>)}</section>}
  {phase==='verdict'&&<button className="fd-main fd-continue" onClick={next}>{!won&&players[defender]!.dignity===0?'VOIR LE SEUM':'À TON TOUR DE L’ATTAQUER →'}</button>}
