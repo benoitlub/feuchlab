@@ -17,7 +17,7 @@ function challenges(cat:string, d:number[]):Challenge[] {
  const middle=sorted[1]!;
  const exact:Challenge={title:'LE COMPTE EST BON',instruction:`Reproduis exactement la somme ${total} de ton tirage en trois lancers.`,kind:'exact',target:total,rolls:3};
  if(cat==='BRELAN')return [
-  {title:'LE CLONE DU FEUCH',instruction:`Reproduis le brelan de ${repeated} en trois lancers.`,kind:'double',target:repeated,rolls:3},
+  {title:'LE CLONE DU FEUCH',instruction:`Obtiens au moins deux ${repeated}, comme dans ton brelan, en trois lancers.`,kind:'double',target:repeated,rolls:3},
   {title:'LA TRINITÉ DU SEUM',instruction:'Obtiens trois dés identiques en trois lancers.',kind:'triple',rolls:3},
   exact
  ];
