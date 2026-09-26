@@ -7,3 +7,5 @@
 @keyframes fd-dice-tumble{0%{transform:translateY(-25px) rotate(-22deg) scale(.85);opacity:.5}25%{transform:translateY(7px) rotate(18deg) scale(1.05);opacity:1}50%{transform:translateY(-13px) rotate(-12deg)}75%{transform:translateY(4px) rotate(7deg)}100%{transform:translateY(0) rotate(0) scale(1)}}
 @keyframes fd-dice-face{0%{transform:rotate(-80deg) scale(.8)}100%{transform:rotate(80deg) scale(1.12)}}
 @media(prefers-reduced-motion:reduce){.fd-dice button.rolling,.fd-dice button.rolling span{animation:none}}
+
+.fd-mode{display:flex;gap:8px;margin:14px 0 8px}.fd-mode button{flex:1;padding:12px 8px;border:1px solid #315c3a;border-radius:10px;background:#102418;color:#b9ffd0;font-weight:800;cursor:pointer}.fd-mode button[aria-pressed=true]{background:#a5f58a;color:#102418;border-color:#d2ff88;box-shadow:0 0 12px #65ff7b44}
