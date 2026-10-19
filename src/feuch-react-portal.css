@@ -38,3 +38,18 @@
 @media(min-width:740px){.fli-feuchian .feuch-concept-hero{min-height:720px}.fli-feuchian .fli-game-list{grid-template-columns:repeat(3,minmax(0,1fr))}.fli-feuchian .feuch-illustrated-card{min-height:230px}}
 @media(max-width:390px){.fli-feuchian .feuch-illustrated-card{padding:92px 8px 10px;min-height:180px}.feuch-illustrated-card .fli-game-copy strong{font-size:.84rem}}
 @media(prefers-reduced-motion:reduce){.feuch-concept-hero *, .feuch-illustrated-card *{animation:none!important;transition:none!important}}
+
+/* Artwork version 2: actual authored layered vector scene, not an AI screenshot.
+   Responsive decorative background, never contains clickable/translated text. */
+.fli-feuchian .feuch-concept-hero .feuch-panorama{
+ background-image:linear-gradient(to bottom,rgba(0,27,34,.03) 12%,rgba(0,24,27,.1) 50%,rgba(0,21,24,.84) 94%),url('/feuchlab/feuch-tropical-panorama.svg');
+ background-size:cover;
+ background-position:50% 35%;
+}
+.feuch-concept-hero .feuch-mountain,.feuch-concept-hero .feuch-water,
+.feuch-concept-hero .feuch-palace,.feuch-concept-hero .feuch-fronds,
+.feuch-concept-hero .feuch-sun{display:none}
+.feuch-concept-hero .feuch-panorama{animation:feuch-panorama-rise 1.1s cubic-bezier(.22,1,.36,1) both}
+@keyframes feuch-panorama-rise{from{opacity:.65;transform:scale(1.07)}to{opacity:1;transform:scale(1)}}
+.fli-feuchian.feuch-night .feuch-concept-hero .feuch-panorama{filter:brightness(.5) hue-rotate(38deg) saturate(1.45)}
+@media(prefers-reduced-motion:reduce){.feuch-concept-hero .feuch-panorama{animation:none}}
