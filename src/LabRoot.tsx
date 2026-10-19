@@ -92,7 +92,7 @@ export default function LabRoot() {
     {(page === 'home' || page === 'games') && <>
       <section className="feuch-hero" aria-labelledby="feuch-title">
         <div className="feuch-panorama" aria-hidden="true" /><div className="feuch-hero-veil" aria-hidden="true" />
-        <div className="feuch-emblem" aria-hidden="true"><span>◉</span><i /></div>
+        <div className="feuch-brand-lockup" aria-label="Feuch Institute Lab"><img src="/feuchlab/feuch-institute-emblem.svg" alt="" aria-hidden="true" /><span className="feuch-brand-wordmark">FEUCH<small>INSTITUTE LAB</small></span></div>
         <div className="feuch-hero-copy"><p className="feuch-eyebrow"><span />{t.eyebrow}</p><h1 id="feuch-title">{t.title}</h1><p>{t.subtitle}</p><a href="#feuch-experiences" className="feuch-primary-action">{t.enter}<span>↓</span></a></div>
         <div className="feuch-water-shimmer" aria-hidden="true" />
       </section>
