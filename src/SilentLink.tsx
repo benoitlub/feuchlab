@@ -21,6 +21,7 @@ export default function SilentLink({ onBack }: { onBack: () => void }) {
   const [correct, setCorrect] = useState<boolean | null>(null);
   const [message, setMessage] = useState('Deux téléphones. Aucun message libre. Un bit à la fois.');
   const [busy, setBusy] = useState(false);
+  const [socketOnline,setSocketOnline] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
 
   const paired = connected.includes('A') && connected.includes('B');
@@ -39,7 +40,7 @@ export default function SilentLink({ onBack }: { onBack: () => void }) {
 
   function attach(code: string, nextRole: FeuchRole) {
     socketRef.current?.close(1000, 'switching');
-    setConnected([]);
+    setConnected([]);setSocketOnline(false);
     const socket = connectFeuchRoom(code, nextRole);
     socketRef.current = socket;
     setRoom(code);
@@ -47,13 +48,16 @@ export default function SilentLink({ onBack }: { onBack: () => void }) {
     setMessage('Connexion au Feuch Link…');
 
     socket.addEventListener('open', () => {
+      if(socketRef.current !== socket)return;
+      setSocketOnline(true);
       setPhase('linked');
       setMessage(nextRole === 'A' ? 'NODE A connecté. En attente du NODE B.' : 'NODE B connecté. En attente du protocole.');
       void refreshStatus(code);
     });
-    socket.addEventListener('close', event => { if (socketRef.current !== socket) return; setConnected([]); setMessage(`Lien interrompu (${event.code}). Rechargez ou reconnectez les deux téléphones.`); });
-    socket.addEventListener('error', () => setMessage('Erreur de liaison WebSocket.'));
+    socket.addEventListener('close', event => { if (socketRef.current !== socket) return; setSocketOnline(false);setConnected([]);setMessage(`Lien interrompu (${event.code}). Rechargez ou reconnectez les deux téléphones.`); });
+    socket.addEventListener('error', () => {if(socketRef.current === socket){setSocketOnline(false);setMessage('Erreur de liaison WebSocket.')}});
     socket.addEventListener('message', event => {
+      if(socketRef.current !== socket)return;
       let data: EventPayload;
       try { data = JSON.parse(String(event.data)) as EventPayload; } catch { return; }
       const type = typeof data.type === 'string' ? data.type : '';
@@ -115,14 +119,14 @@ export default function SilentLink({ onBack }: { onBack: () => void }) {
   }
 
   function startSession() {
-    if (!paired) { setMessage('Il faut deux téléphones connectés.'); return; }
+    if (!paired || !socketOnline) { setMessage('Les deux téléphones doivent être connectés et la liaison WebSocket active.'); return; }
     if (!sendFeuch(socketRef.current, 'session.start', { totalTrials: 20 })) setMessage('Connexion non ouverte. Rechargez la salle sur les deux téléphones.');
   }
 
   function sendGuess(choice: BinaryChoice) {
     if (role !== 'B') return;
-    setGuess(choice);
-    sendFeuch(socketRef.current, 'trial.guess', { guess: choice });
+    if(sendFeuch(socketRef.current, 'trial.guess', { guess: choice }))setGuess(choice);
+    else setMessage('Liaison interrompue : réponse non envoyée. Reconnectez-vous.');
   }
 
   function nextTrial() {
@@ -135,7 +139,7 @@ export default function SilentLink({ onBack }: { onBack: () => void }) {
     <div className="silent-head">
       <button className="ghost" onClick={onBack}>← LABO</button>
       <div><p className="section-kicker">FLI-B2B-20 — SILENT LINK</p><h2>Oui / Non à distance</h2></div>
-      <span className={paired ? 'link-pill live' : 'link-pill'}>{paired ? 'LINKED' : role ? `NODE ${role}` : 'OFFLINE'}</span>
+      <span className={paired && socketOnline ? 'link-pill live' : 'link-pill'}>{paired && socketOnline ? 'LINKED' : socketOnline && role ? `NODE ${role}` : 'OFFLINE'}</span>
     </div>
 
     {phase === 'lobby' && !role && <div className="silent-lobby">
@@ -149,9 +153,9 @@ export default function SilentLink({ onBack }: { onBack: () => void }) {
     {role && phase === 'linked' && <div className="link-waiting">
       <div className="node-line"><b>NODE A {connected.includes('A') ? '●' : '○'}</b><i/><b>NODE B {connected.includes('B') ? '●' : '○'}</b></div>
       <div className="room-code"><span>ROOM</span><strong>{room}</strong></div>
-      {role === 'A' && <><p>Faites ouvrir ce lien sur le deuxième téléphone :</p><code>{shareLink}</code><button className="primary big" disabled={!paired} onClick={startSession}>{paired ? 'LANCER 20 ESSAIS' : 'EN ATTENTE DU NODE B'}</button></>}
+      {role === 'A' && <><p>Faites ouvrir ce lien sur le deuxième téléphone :</p><code>{shareLink}</code><button className="primary big" disabled={!paired || !socketOnline} onClick={startSession}>{paired && socketOnline ? 'LANCER 20 ESSAIS' : 'EN ATTENTE DU NODE B'}</button></>}
       {role === 'B' && <p>Vous êtes le récepteur. Le téléphone A lancera la session quand les deux nœuds seront liés.</p>}
-      <small>{message}</small><small>Si les deux téléphones affichent « en attente », vérifiez qu’ils utilisent exactement le même code, puis rechargez les deux pages.</small>
+      <small>{message}</small>{!socketOnline && <button className="secondary big" onClick={()=>attach(room,role)}>RECONNECTER CE TÉLÉPHONE</button>}<small>Si les deux téléphones affichent « en attente », vérifiez qu’ils utilisent exactement le même code, puis rechargez les deux pages.</small>
     </div>}
 
     {role && phase === 'trial' && <div className="silent-trial">
