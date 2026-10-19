@@ -8,55 +8,103 @@ import Pineal from './Pineal';
 import QuickGames from './QuickGames';
 import FeuchDice from './FeuchDice';
 import LabIcon from './LabIcon';
-import LabPortal, { type Lang } from './LabPortal';
-type Protocol='library'|'walk'|'silent'|'ghost'|'predict'|'feel'|'stereo'|'oculus'|'hands'|'pineal'|'zener'|'stop'|'flash'|'marty'|'dice';
-export default function LabRoot(){const initial=useMemo<Protocol>(()=>{const q=new URLSearchParams(location.search);if(q.has('room')||q.get('protocol')==='silent')return'silent';const p=q.get('protocol') as Protocol;if(['ghost','predict','feel','stereo','oculus','hands','pineal','zener','stop','flash','marty','dice'].includes(p))return p;return'library'},[]);const[protocol,setProtocol]=useState<Protocol>(initial);const[page,setPage]=useState<'experiences'|'parcours'|'archives'|'univers'|'reglages'|'premium'>('experiences');const[lang,setLang]=useState<Lang>(()=>{const v=localStorage.getItem('fli_lang');return v==='en'||v==='es'?v:'fr'});const[theme,setTheme]=useState<'dark'|'light'>(()=>localStorage.getItem('fli_theme')==='light'?'light':'dark');;
-const [closing,setClosing]=useState(false);
-const navigationTimer=useRef<number|null>(null);
-const navigate=(destination:Protocol)=>{
-  if(destination===protocol || closing)return;
-  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-    history.replaceState(null,'',destination==='library'?location.pathname:`${location.pathname}?protocol=${destination}`);
-    setProtocol(destination);window.scrollTo(0,0);return;
-  }
-  setClosing(true);
-  navigationTimer.current=window.setTimeout(()=>{
-    history.replaceState(null,'',destination==='library'?location.pathname:`${location.pathname}?protocol=${destination}`);
-    setProtocol(destination);setClosing(false);window.scrollTo(0,0);
-  },240);
-};
-const home=()=>navigate('library');
-const open=(p:Protocol)=>navigate(p);
-useEffect(()=>()=>{if(navigationTimer.current!==null)window.clearTimeout(navigationTimer.current)},[]);
-useEffect(()=>{if(protocol!=='library')return;const observer=new IntersectionObserver(entries=>{
-  entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('feuch-in-view');observer.unobserve(entry.target)}});
-},{rootMargin:'0px 0px -25px 0px',threshold:.08});
-const elements=Array.from(document.querySelectorAll('.feuch-scroll-reveal'));
-elements.forEach(element=>observer.observe(element));
-return ()=>observer.disconnect();},[protocol,page]);
-const frame=(node:React.ReactNode)=><div className={`feuch-scene-transition ${closing?'feuch-scene-exit':'feuch-scene-enter'}`}>{node}</div>;
-if(protocol==='dice')return frame(<FeuchDice onBack={home}/>);if(protocol==='walk')return frame(<div className="protocol-wrap"><button className="lab-home-fab" onClick={home}>⌂ LAB</button><App/></div>);if(protocol==='silent')return frame(<SilentLink onBack={home}/>);if(protocol==='ghost')return frame(<GhostFrame onBack={home}/>);if(protocol==='predict'||protocol==='feel')return frame(<InstantExperiment mode={protocol} onBack={home}/>);if(protocol==='stereo'||protocol==='oculus'||protocol==='hands')return frame(<TrainingLab kind={protocol} onBack={home}/>);if(protocol==='pineal')return frame(<Pineal onBack={home}/>);if(protocol==='zener'||protocol==='stop'||protocol==='flash'||protocol==='marty')return frame(<QuickGames game={protocol} onBack={home}/>);
-const cards:[Protocol,string,string,string,string,string][]=[['predict','FLI-PREDICT-10','←?','Before It Happens','Choisis gauche ou droite avant la révélation.','10 ESSAIS · INSTANT'],['zener','FLI-ZENER-20','☆','What’s Behind?','Devine le symbole caché parmi cinq possibilités.','20 ESSAIS · 20 % HASARD'],['stop','FLI-STOP-10','●','Feel It Now','Trouve le moment précis d’une cible secrète.','10 ESSAIS · TIMING'],['flash','FLI-FLASH-12','⚡','Did You See It?','Identifie un symbole affiché en un éclair.','12 ESSAIS · PERCEPTION'],['marty','FLI-MARTY-10','⊙','Marty’s Button','Ne touche pas au bouton. Enfin, presque.','10 ESSAIS · FEUCH'],['feel','FLI-FEEL-10','?∅','Something / Nothing','Devine laquelle des deux conditions a été tirée.','10 ESSAIS · INSTANT'],['ghost','FLI-GHOST-02','◉','Ghost Frame','Détecte des stimuli brefs et les faux positifs.','12 ESSAIS · PERCEPTION'],['hands','FLI-HAND','△','Hand Codex','Mémorise et reproduis une suite de sigils.','3 NIVEAUX · MÉMOIRE'],['walk','FLI-MW-06','6','Marty Walk','Six pas, des capteurs et un débrief Blacklace.','MOUVEMENT · CAPTEURS'],['dice','FLI-DICE-03','⚄','Feuch Dice','Trois dés, des manigances et trois briques de dignité.','DUEL LOCAL · 2 JOUEURS'],['silent','FLI-B2B-20','A↔B','Silent Link','Deux téléphones, une cible secrète, vingt essais.','DUO · 2 TÉLÉPHONES'],['stereo','FLI-STEREO','◎◎','Third Eye','Explore un autostéréogramme en relief.','LAB · VISION 3D'],['pineal','FLI-PINEAL','◉△','Third Eye / Pineal','Observe et décris tes perceptions visuelles.','LAB · PERCEPTION'],['oculus','FLI-OCULUS','◉','Oculus','Exercice de poursuite visuelle douce.','LAB · PROTOTYPE']];
-const HOME_COPY:Record<Lang,{signal:string,overline:string,titleTop:string,titleBottom:string,subtitle:string,active:string,explore:string,choose:string,protocols:string,research:string,laboratory:string,experiments:string,archiveSoon:string,archive:string,archiveDescription:string}> = {
-fr:{signal:'INSTITUT FEUCH · SECTEUR EXPÉRIMENTAL',overline:'LE LABORATOIRE DES IMPROBABILITÉS',titleTop:'Bienvenue dans',titleBottom:"l'anomalie.",subtitle:'Teste ton intuition. Trompe le hasard. Ou laisse le Feuch te surprendre.',active:'EXPÉRIENCES ACTIVES',explore:'EXPLORER',choose:'Choisis ton expérience',protocols:'11 PROTOCOLES EN ACTIVITÉ',research:'RECHERCHE & PROTOTYPES',laboratory:'Le laboratoire',experiments:'3 expériences exploratoires',archiveSoon:'BIENTÔT',archive:'Les archives',archiveDescription:'Comparer les sessions et retrouver les vrais motifs.'},
-en:{signal:'FEUCH INSTITUTE · EXPERIMENTAL SECTOR',overline:'THE LABORATORY OF IMPROBABILITIES',titleTop:'Welcome to',titleBottom:'the anomaly.',subtitle:'Test your intuition. Challenge chance. Or let the Feuch surprise you.',active:'ACTIVE EXPERIMENTS',explore:'EXPLORE',choose:'Choose your experiment',protocols:'11 ACTIVE PROTOCOLS',research:'RESEARCH & PROTOTYPES',laboratory:'The laboratory',experiments:'3 experimental studies',archiveSoon:'COMING SOON',archive:'The archive',archiveDescription:'Compare sessions and discover recurring patterns.'},
-es:{signal:'INSTITUTO FEUCH · SECTOR EXPERIMENTAL',overline:'EL LABORATORIO DE LO IMPROBABLE',titleTop:'Bienvenido a',titleBottom:'la anomalía.',subtitle:'Pon a prueba tu intuición. Desafía al azar. O deja que el Feuch te sorprenda.',active:'EXPERIMENTOS ACTIVOS',explore:'EXPLORAR',choose:'Elige tu experimento',protocols:'11 PROTOCOLOS ACTIVOS',research:'INVESTIGACIÓN Y PROTOTIPOS',laboratory:'El laboratorio',experiments:'3 experiencias exploratorias',archiveSoon:'PRÓXIMAMENTE',archive:'El archivo',archiveDescription:'Compara sesiones y descubre patrones recurrentes.'}
-};
-const GAME_TEXT:Record<Lang,Record<string,[string,string]>>={
-fr:{},
-en:{predict:['Before It Happens','Choose left or right before the reveal.'],zener:["What's Behind?",'Guess which of five symbols is hidden.'],stop:['Feel It Now','Find the precise moment of a secret target.'],flash:['Did You See It?','Identify a symbol shown in a flash.'],marty:["Marty’s Button","Don't push the button. Well, almost."],feel:['Something / Nothing','Guess which of two conditions was drawn.'],ghost:['Ghost Frame','Detect brief stimuli and false positives.'],hands:['Hand Codex','Remember and reproduce a sequence of sigils.'],walk:['Marty Walk','Six steps, sensors and a Blacklace debrief.'],dice:['Feuch Dice','Three dice, dirty tricks and three dignity bricks.'],silent:['Silent Link','Two phones, one secret target, twenty trials.'],stereo:['Third Eye','Explore a stereogram in 3D.'],pineal:['Third Eye / Pineal','Observe and describe your visual perceptions.'],oculus:['Oculus','A gentle visual tracking exercise.']},
-es:{predict:['Before It Happens','Elige izquierda o derecha antes de la revelación.'],zener:["What's Behind?",'Adivina el símbolo oculto entre cinco opciones.'],stop:['Feel It Now','Encuentra el momento exacto de un objetivo secreto.'],flash:['Did You See It?','Identifica un símbolo mostrado fugazmente.'],marty:["Marty’s Button",'No pulses el botón. Bueno, casi.'],feel:['Something / Nothing','Adivina cuál de las dos condiciones salió.'],ghost:['Ghost Frame','Detecta estímulos breves y falsos positivos.'],hands:['Hand Codex','Memoriza y reproduce una secuencia de sigilos.'],walk:['Marty Walk','Seis pasos, sensores y un análisis Blacklace.'],dice:['Feuch Dice','Tres dados, travesuras y tres bloques de dignidad.'],silent:['Silent Link','Dos teléfonos, un objetivo secreto, veinte intentos.'],stereo:['Third Eye','Explora un estereograma en relieve.'],pineal:['Third Eye / Pineal','Observa y describe tus percepciones visuales.'],oculus:['Oculus','Un suave ejercicio de seguimiento visual.']}
-};
-const homeCopy=HOME_COPY[lang];
-const renderCard=([p,id,_icon,title,desc,meta]:typeof cards[number])=><button key={p} className={`fli-game-card feuch-illustrated-card feuch-art-${p}`} onClick={()=>open(p)}><span className="fli-game-icon" aria-hidden="true"><LabIcon name={p}/></span><span className="feuch-card-atmosphere" aria-hidden="true"/><span className="fli-game-copy"><span className="fli-game-id">{id}</span><strong>{GAME_TEXT[lang][p]?.[0] ?? title}</strong><span className="fli-game-description">{GAME_TEXT[lang][p]?.[1] ?? desc}</span><span className="fli-game-meta">{meta}</span></span><span className="fli-game-arrow" aria-hidden="true">↗</span></button>;
-return <main className={`fli-library fli-feuchian ${theme==="light"?"feuch-day":"feuch-night"} feuch-scene-transition ${closing?"feuch-scene-exit":"feuch-scene-enter"}`}><div className="feuch-atmosphere" aria-hidden="true"><span className="feuch-aurora"/><span className="feuch-orbit feuch-orbit-one"/><span className="feuch-orbit feuch-orbit-two"/><span className="feuch-dust"/></div>{theme==="light"&&<div className="feuch-botanical-garden" aria-hidden="true"><span className="flora flora-left">❧</span><span className="flora flora-right">❧</span><span className="flora-orchid orchid-one">✿</span><span className="flora-orchid orchid-two">✾</span><span className="flora-orchid orchid-three">✿</span><span className="flora-spores"/></div>}<LabPortal page={page} setPage={setPage} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme}/>{page==='experiences'&&<><div className="fli-library-intro feuch-entry feuch-concept-hero">
-  <div className="feuch-panorama" aria-hidden="true"><div className="feuch-sun"/><div className="feuch-mountain mountain-a"/><div className="feuch-mountain mountain-b"/><div className="feuch-water"/><div className="feuch-palace"><span/><span/><span/></div><div className="feuch-fronds fronds-left"/><div className="feuch-fronds fronds-right"/></div>
-  <div className="feuch-concept-logo" aria-hidden="true">◉<small>F E U C H<br/>I N S T I T U T E</small></div>
+import LabPortal, { type Lang, type Page } from './LabPortal';
 
-  <div className="feuch-entry-meta"><span className="feuch-signal-dot"/> {homeCopy.signal} <span>EST. BLACKLACE</span></div>
-  <div className="feuch-emblem feuch-old-emblem" aria-hidden="true"><span className="feuch-emblem-ring"/><span className="feuch-emblem-eye">◉</span><span className="feuch-emblem-rune">△</span></div>
-  <span className="fli-overline">{homeCopy.overline}</span>
-  <h1>{homeCopy.titleTop}<br/><em>{homeCopy.titleBottom}</em></h1>
-  <p>{homeCopy.subtitle}</p>
-  <div className="feuch-entry-footer"><span>◈ {homeCopy.active}</span><a href="#feuch-experiences">{homeCopy.explore} <span aria-hidden="true">↘</span></a></div>
-</div><section className="fli-library-section feuch-scroll-reveal" id="feuch-experiences"><div className="fli-section-title"><h2>{homeCopy.choose}</h2><span>{homeCopy.protocols}</span></div><div className="fli-game-list">{cards.slice(0,11).map(renderCard)}</div></section><details className="fli-lab-section feuch-scroll-reveal"><summary><span><small>{homeCopy.research}</small><strong>{homeCopy.laboratory}</strong><em>{homeCopy.experiments}</em></span><span className="fli-lab-chevron">＋</span></summary><div className="fli-game-list">{cards.slice(11).map(renderCard)}</div></details><div className="fli-archive feuch-scroll-reveal"><span className="fli-game-icon">▤</span><span><small>{homeCopy.archiveSoon}</small><strong>{homeCopy.archive}</strong><p>{homeCopy.archiveDescription}</p></span></div></>}</main>}
+type Protocol = 'library' | 'walk' | 'silent' | 'ghost' | 'predict' | 'feel' | 'stereo' | 'oculus' | 'hands' | 'pineal' | 'zener' | 'stop' | 'flash' | 'marty' | 'dice';
+type Card = { protocol: Exclude<Protocol, 'library'>; id: string; title: string; description: Record<Lang, string>; meta: Record<Lang, string>; art: string };
+
+const copy = {
+  fr: { eyebrow: 'BLACKLACE ISLAND · SECTEUR EXPÉRIMENTAL', title: 'Bienvenue au Feuch Lab', subtitle: 'Jeux, perception, intuition et autres états du réel.', enter: 'Explorer les expériences', games: 'Nos jeux expérimentaux', available: 'protocoles disponibles', lab: 'Recherche & prototypes', labHint: 'Expériences visuelles en laboratoire', featured: 'Expérience à deux', featureTitle: 'Silent Link', featureText: 'Deux téléphones, une cible secrète, vingt essais.', open: 'Ouvrir', local: 'Fonctionne dans ce navigateur' },
+  en: { eyebrow: 'BLACKLACE ISLAND · EXPERIMENTAL SECTOR', title: 'Welcome to Feuch Lab', subtitle: 'Games, perception, intuition and other states of reality.', enter: 'Explore the experiments', games: 'Our experimental games', available: 'available protocols', lab: 'Research & prototypes', labHint: 'Visual studies from the laboratory', featured: 'Two-player experience', featureTitle: 'Silent Link', featureText: 'Two phones, one secret target, twenty trials.', open: 'Open', local: 'Runs in this browser' },
+  es: { eyebrow: 'BLACKLACE ISLAND · SECTOR EXPERIMENTAL', title: 'Bienvenido a Feuch Lab', subtitle: 'Juegos, percepción, intuición y otros estados de la realidad.', enter: 'Explorar los experimentos', games: 'Nuestros juegos experimentales', available: 'protocolos disponibles', lab: 'Investigación y prototipos', labHint: 'Experiencias visuales del laboratorio', featured: 'Experiencia para dos', featureTitle: 'Silent Link', featureText: 'Dos teléfonos, un objetivo secreto, veinte intentos.', open: 'Abrir', local: 'Funciona en este navegador' },
+} satisfies Record<Lang, Record<string, string>>;
+
+const cards: Card[] = [
+  { protocol: 'dice', id: 'FLI-DICE-03', title: 'Feuch Dice', art: 'dice', description: { fr: 'Trois dés, des manigances et trois briques de dignité.', en: 'Three dice, dirty tricks and three dignity bricks.', es: 'Tres dados, trucos y tres bloques de dignidad.' }, meta: { fr: 'DUEL LOCAL', en: 'LOCAL DUEL', es: 'DUELO LOCAL' } },
+  { protocol: 'predict', id: 'FLI-PREDICT-10', title: 'Before It Happens', art: 'future', description: { fr: 'Choisis avant la révélation.', en: 'Choose before the reveal.', es: 'Elige antes de la revelación.' }, meta: { fr: 'INTUITION', en: 'INTUITION', es: 'INTUICIÓN' } },
+  { protocol: 'ghost', id: 'FLI-GHOST-02', title: 'Ghost Frame', art: 'ghost', description: { fr: 'Détecte les stimuli furtifs.', en: 'Detect fleeting stimuli.', es: 'Detecta estímulos fugaces.' }, meta: { fr: 'PERCEPTION', en: 'PERCEPTION', es: 'PERCEPCIÓN' } },
+  { protocol: 'silent', id: 'FLI-B2B-20', title: 'Silent Link', art: 'signal', description: { fr: 'Une connexion entre deux écrans.', en: 'A connection between two screens.', es: 'Una conexión entre dos pantallas.' }, meta: { fr: 'DUO', en: 'TWO PLAYERS', es: 'DÚO' } },
+  { protocol: 'zener', id: 'FLI-ZENER-20', title: "What's Behind?", art: 'zener', description: { fr: 'Devine le symbole caché.', en: 'Guess the hidden symbol.', es: 'Adivina el símbolo oculto.' }, meta: { fr: 'HASARD', en: 'CHANCE', es: 'AZAR' } },
+  { protocol: 'stop', id: 'FLI-STOP-10', title: 'Feel It Now', art: 'timing', description: { fr: 'Trouve le moment précis.', en: 'Find the precise moment.', es: 'Encuentra el momento exacto.' }, meta: { fr: 'TIMING', en: 'TIMING', es: 'RITMO' } },
+  { protocol: 'flash', id: 'FLI-FLASH-12', title: 'Did You See It?', art: 'flash', description: { fr: 'Un symbole dans un éclair.', en: 'A symbol in a flash.', es: 'Un símbolo en un destello.' }, meta: { fr: 'VISION', en: 'VISION', es: 'VISIÓN' } },
+  { protocol: 'marty', id: 'FLI-MARTY-10', title: "Marty's Button", art: 'marty', description: { fr: 'Ne touche pas au bouton. Enfin, presque.', en: "Don't push the button. Well, almost.", es: 'No pulses el botón. Bueno, casi.' }, meta: { fr: 'FEUCH', en: 'FEUCH', es: 'FEUCH' } },
+  { protocol: 'feel', id: 'FLI-FEEL-10', title: 'Something / Nothing', art: 'feel', description: { fr: 'Quelque chose, ou rien ?', en: 'Something, or nothing?', es: '¿Algo, o nada?' }, meta: { fr: 'INSTANT', en: 'INSTANT', es: 'INSTANTE' } },
+  { protocol: 'hands', id: 'FLI-HAND', title: 'Hand Codex', art: 'hands', description: { fr: 'Mémorise la suite de sigils.', en: 'Remember the sigil sequence.', es: 'Memoriza la secuencia de sigilos.' }, meta: { fr: 'MÉMOIRE', en: 'MEMORY', es: 'MEMORIA' } },
+  { protocol: 'walk', id: 'FLI-MW-06', title: 'Marty Walk', art: 'walk', description: { fr: 'Six pas et un débrief Blacklace.', en: 'Six steps and a Blacklace debrief.', es: 'Seis pasos y un análisis Blacklace.' }, meta: { fr: 'CAPTEURS', en: 'SENSORS', es: 'SENSORES' } },
+];
+
+const researchCards: Card[] = [
+  { protocol: 'stereo', id: 'FLI-STEREO', title: 'Third Eye', art: 'stereo', description: { fr: 'Explore un stéréogramme en relief.', en: 'Explore a stereogram in 3D.', es: 'Explora un estereograma en relieve.' }, meta: { fr: 'VISION 3D', en: '3D VISION', es: 'VISIÓN 3D' } },
+  { protocol: 'pineal', id: 'FLI-PINEAL', title: 'Third Eye / Pineal', art: 'pineal', description: { fr: 'Observe tes perceptions visuelles.', en: 'Observe your visual perceptions.', es: 'Observa tus percepciones visuales.' }, meta: { fr: 'PERCEPTION', en: 'PERCEPTION', es: 'PERCEPCIÓN' } },
+  { protocol: 'oculus', id: 'FLI-OCULUS', title: 'Oculus', art: 'oculus', description: { fr: 'Poursuite visuelle douce.', en: 'Gentle visual tracking.', es: 'Seguimiento visual suave.' }, meta: { fr: 'PROTOTYPE', en: 'PROTOTYPE', es: 'PROTOTIPO' } },
+];
+
+export default function LabRoot() {
+  const initial = useMemo<Protocol>(() => {
+    const query = new URLSearchParams(location.search);
+    if (query.has('room') || query.get('protocol') === 'silent') return 'silent';
+    const requested = query.get('protocol') as Protocol;
+    return [...cards, ...researchCards].some(({ protocol }) => protocol === requested) ? requested : 'library';
+  }, []);
+  const [protocol, setProtocol] = useState<Protocol>(initial);
+  const [page, setPage] = useState<Page>('home');
+  const [lang, setLang] = useState<Lang>(() => { const saved = localStorage.getItem('fli_lang'); return saved === 'en' || saved === 'es' ? saved : 'fr'; });
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => localStorage.getItem('fli_theme') === 'dark' ? 'dark' : 'light');
+  const [closing, setClosing] = useState(false);
+  const navigationTimer = useRef<number | null>(null);
+  const t = copy[lang];
+
+  const navigate = (destination: Protocol) => {
+    if (destination === protocol || closing) return;
+    const finish = () => { history.replaceState(null, '', destination === 'library' ? location.pathname : `${location.pathname}?protocol=${destination}`); setProtocol(destination); setClosing(false); window.scrollTo({ top: 0 }); };
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return finish();
+    setClosing(true); navigationTimer.current = window.setTimeout(finish, 220);
+  };
+
+  useEffect(() => () => { if (navigationTimer.current !== null) window.clearTimeout(navigationTimer.current); }, []);
+  useEffect(() => {
+    if (protocol !== 'library') return;
+    const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('feuch-in-view'); observer.unobserve(entry.target); } }), { rootMargin: '0px 0px -24px 0px', threshold: .08 });
+    document.querySelectorAll('.feuch-scroll-reveal').forEach(element => observer.observe(element));
+    return () => observer.disconnect();
+  }, [protocol, page]);
+
+  const home = () => navigate('library');
+  const frame = (node: React.ReactNode) => <div className={`feuch-scene-transition ${closing ? 'feuch-scene-exit' : 'feuch-scene-enter'}`}>{node}</div>;
+  if (protocol === 'dice') return frame(<FeuchDice onBack={home} />);
+  if (protocol === 'walk') return frame(<div className="protocol-wrap"><button className="lab-home-fab" onClick={home}>⌂ LAB</button><App /></div>);
+  if (protocol === 'silent') return frame(<SilentLink onBack={home} />);
+  if (protocol === 'ghost') return frame(<GhostFrame onBack={home} />);
+  if (protocol === 'predict' || protocol === 'feel') return frame(<InstantExperiment mode={protocol} onBack={home} />);
+  if (protocol === 'stereo' || protocol === 'oculus' || protocol === 'hands') return frame(<TrainingLab kind={protocol} onBack={home} />);
+  if (protocol === 'pineal') return frame(<Pineal onBack={home} />);
+  if (protocol === 'zener' || protocol === 'stop' || protocol === 'flash' || protocol === 'marty') return frame(<QuickGames game={protocol} onBack={home} />);
+
+  const renderCard = (card: Card) => <button key={card.protocol} className={`feuch-game-card feuch-art-${card.art}`} onClick={() => navigate(card.protocol)}>
+    <span className="feuch-game-art" aria-hidden="true"><LabIcon name={card.protocol} /></span>
+    <span className="feuch-game-copy"><small>{card.id}</small><strong>{card.title}</strong><span>{card.description[lang]}</span><em>{card.meta[lang]}</em></span>
+    <span className="feuch-game-arrow" aria-hidden="true">↗</span>
+  </button>;
+
+  return <main className={`feuch-world ${theme === 'light' ? 'feuch-day' : 'feuch-night'} ${closing ? 'feuch-scene-exit' : 'feuch-scene-enter'}`}>
+    <div className="feuch-ambient" aria-hidden="true"><i /><i /><i /><i /><i /><i /></div>
+    <LabPortal page={page} setPage={setPage} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} />
+    {(page === 'home' || page === 'games') && <>
+      <section className="feuch-hero" aria-labelledby="feuch-title">
+        <div className="feuch-panorama" aria-hidden="true" /><div className="feuch-hero-veil" aria-hidden="true" />
+        <div className="feuch-emblem" aria-hidden="true"><span>◉</span><i /></div>
+        <div className="feuch-hero-copy"><p className="feuch-eyebrow"><span />{t.eyebrow}</p><h1 id="feuch-title">{t.title}</h1><p>{t.subtitle}</p><a href="#feuch-experiences" className="feuch-primary-action">{t.enter}<span>↓</span></a></div>
+        <div className="feuch-water-shimmer" aria-hidden="true" />
+      </section>
+      <section id="feuch-experiences" className="feuch-experiences feuch-scroll-reveal">
+        <header className="feuch-section-heading"><div><small>◉ FEUCH INSTITUTE</small><h2>{t.games}</h2></div><span>{cards.length} {t.available}</span></header>
+        <div className="feuch-game-grid">{cards.map(renderCard)}</div>
+      </section>
+      <button className="feuch-feature feuch-scroll-reveal" onClick={() => navigate('silent')}>
+        <span className="feuch-feature-wave" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /></span>
+        <span><small>{t.featured}</small><strong>{t.featureTitle}</strong><em>{t.featureText}</em><b>● {t.local}</b></span><span className="feuch-feature-arrow">{t.open} →</span>
+      </button>
+      <section className="feuch-research feuch-scroll-reveal"><header className="feuch-section-heading"><div><small>✦ BLACKLACE RESEARCH</small><h2>{t.lab}</h2></div><span>{t.labHint}</span></header><div className="feuch-game-grid feuch-research-grid">{researchCards.map(renderCard)}</div></section>
+    </>}
+  </main>;
+}
