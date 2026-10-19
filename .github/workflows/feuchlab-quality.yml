@@ -4,6 +4,8 @@ on:
     paths:
       - "src/GhostFrame.tsx"
       - "src/SilentLink.tsx"
+      - "src/InstantExperiments.tsx"
+      - "src/QuickGames.tsx"
       - ".github/workflows/feuchlab-quality.yml"
 jobs:
   checks:
