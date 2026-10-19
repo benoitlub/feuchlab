@@ -54,7 +54,7 @@ export default function SilentLink({ onBack }: { onBack: () => void }) {
       setMessage(nextRole === 'A' ? 'NODE A connecté. En attente du NODE B.' : 'NODE B connecté. En attente du protocole.');
       void refreshStatus(code);
     });
-    socket.addEventListener('close', event => { if (socketRef.current !== socket) return; setSocketOnline(false);setConnected([]);setMessage(`Lien interrompu (${event.code}). Rechargez ou reconnectez les deux téléphones.`); });
+    socket.addEventListener('close', event => { if (socketRef.current !== socket) return; setSocketOnline(false);setConnected([]);setPhase('linked');setMessage(`Lien interrompu (${event.code}). Rechargez ou reconnectez les deux téléphones.`); });
     socket.addEventListener('error', () => {if(socketRef.current === socket){setSocketOnline(false);setMessage('Erreur de liaison WebSocket.')}});
     socket.addEventListener('message', event => {
       if(socketRef.current !== socket)return;
