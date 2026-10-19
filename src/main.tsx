@@ -12,6 +12,7 @@ import './pineal.css';
 import './quick-games.css';
 import './feuchian-front.css';
 import './feuch-day-bloom.css';
+import './feuch-react-portal.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode><LabRoot /></React.StrictMode>,
