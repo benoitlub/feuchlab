@@ -5,6 +5,8 @@ export type Page = 'home' | 'games' | 'lab' | 'explore' | 'profile';
 export type Lang = 'fr' | 'en' | 'es';
 
 const externalProjects = [
+  { name: 'Creature-Sync', url: 'https://benoitlub.github.io/Creature-sync/', description: { fr: 'Écouter, analyser et comparer le vivant.', en: 'Listen to, analyse and compare living signals.', es: 'Escuchar, analizar y comparar lo vivo.' } },
+  { name: 'SpecTRL', url: 'https://benoitlub.github.io/SpecTRL/', description: { fr: 'Explorer et analyser les signaux spectraux.', en: 'Explore and analyse spectral signals.', es: 'Explorar y analizar señales espectrales.' } },
   { name: 'Blacklace Dice', url: 'https://benoitlub.github.io/blacklace-dice/', description: { fr: 'Missions, personnages et défis.', en: 'Missions, characters and challenges.', es: 'Misiones, personajes y desafíos.' } },
   { name: '420 Dice Game', url: 'https://benoitlub.github.io/420-dice-game-reboot/', description: { fr: 'Trois dés et des gages à partager.', en: 'Three dice and shared challenges.', es: 'Tres dados y retos compartidos.' } },
   { name: 'Blacklace Echo', url: 'https://benoitlub.github.io/blacklace-echo/', description: { fr: 'L’île, ses signaux et ses histoires.', en: 'The island, its signals and stories.', es: 'La isla, sus señales e historias.' } },
