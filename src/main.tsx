@@ -25,3 +25,4 @@ if ('serviceWorker' in navigator) {
   });
 }
 import './feuch-editorial-cards.css';
+import './feuch-footer-ornate.css';
