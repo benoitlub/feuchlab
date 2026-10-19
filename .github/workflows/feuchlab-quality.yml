@@ -1,0 +1,20 @@
+name: Feuch Lab quality gate
+on:
+  pull_request:
+    paths:
+      - "src/GhostFrame.tsx"
+      - "src/SilentLink.tsx"
+      - "src/InstantExperiments.tsx"
+      - "src/QuickGames.tsx"
+      - ".github/workflows/feuchlab-quality.yml"
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install
+      - run: npm run typecheck
+      - run: npm run build
