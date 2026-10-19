@@ -24,3 +24,4 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/feuchlab/sw.js').catch(() => { /* offline support is optional */ });
   });
 }
+import './feuch-editorial-cards.css';
