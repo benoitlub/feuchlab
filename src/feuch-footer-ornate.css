@@ -1,0 +1,25 @@
+/* Feuchian ornamental navigation bar: live buttons, not a screenshot. */
+.feuch-world{padding-bottom:calc(118px + env(safe-area-inset-bottom))}
+.feuch-bottom-nav{
+ position:fixed;bottom:max(8px,env(safe-area-inset-bottom));left:50%;right:auto;
+ transform:translateX(-50%);width:min(calc(100% - 18px),650px);
+ min-height:78px;padding:9px 7px 11px;
+ border:1.5px solid #e8bf75;border-radius:44px 44px 29px 29px;
+ background:radial-gradient(ellipse at 50% -20%,rgba(15,94,85,.59),transparent 70%),linear-gradient(165deg,rgba(2,45,43,.96),rgba(1,17,21,.97));
+ box-shadow:0 0 0 3px rgba(3,39,36,.65),0 9px 34px rgba(0,0,0,.56),inset 0 1px 0 rgba(255,241,191,.22),0 0 27px rgba(224,165,83,.14);
+ isolation:isolate;
+}
+.feuch-bottom-nav::before,.feuch-bottom-nav::after{content:'✦';position:absolute;z-index:2;left:50%;width:22px;transform:translateX(-50%);text-align:center;color:#f3d191;text-shadow:0 0 7px #f8c66a;font-size:17px;pointer-events:none}
+.feuch-bottom-nav::before{top:-17px}.feuch-bottom-nav::after{bottom:-16px}
+.feuch-bottom-nav button{min-width:0;min-height:54px;gap:5px;border-radius:22px;transition:color .22s ease,background .22s ease}
+.feuch-bottom-nav button span{font-size:clamp(21px,5.2vw,26px);line-height:1.1;font-weight:400;color:#ffe1a1;text-shadow:0 0 6px rgba(255,211,137,.15)}
+.feuch-bottom-nav button small{font-size:clamp(8px,1.9vw,10px);letter-spacing:.09em;font-weight:600;color:#f4e7c7}
+.feuch-bottom-nav button.active{color:#80ffed;background:radial-gradient(ellipse at 50% 44%,rgba(31,245,211,.18),transparent 75%);text-shadow:0 0 10px #00dac3}
+.feuch-bottom-nav button.active span,.feuch-bottom-nav button.active small{color:#84fff0;text-shadow:0 0 10px rgba(44,255,218,.85)}
+.feuch-bottom-nav button.active:after{bottom:2px;width:29px;height:2px}
+.feuch-bottom-nav button:focus-visible{outline:2px solid #87ffec;outline-offset:-2px}
+.feuch-bottom-nav button:active{transform:scale(.96)}
+.feuch-night .feuch-bottom-nav{background:radial-gradient(ellipse at 50% -20%,rgba(55,51,123,.55),transparent 68%),linear-gradient(165deg,rgba(12,20,48,.97),rgba(1,8,24,.98));border-color:#d2b4f0}
+@media(min-width:600px){.feuch-bottom-nav{min-height:84px;padding:10px 12px}}
+@media(max-width:360px){.feuch-bottom-nav{width:calc(100% - 12px);padding:6px 3px 8px;min-height:70px}.feuch-bottom-nav button small{font-size:7px}}
+@media(prefers-reduced-motion:reduce){.feuch-bottom-nav button{transition:none}}
