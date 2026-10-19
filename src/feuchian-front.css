@@ -56,3 +56,34 @@
 @keyframes feuch-breathe{from{opacity:.65;transform:scale(.97)}to{opacity:1;transform:scale(1.04)}}
 @keyframes feuch-eye{0%,100%{opacity:.9;transform:scale(1)}50%{opacity:1;transform:scale(1.09)}}
 @keyframes feuch-drift{to{transform:rotate(360deg)}}
+
+
+/* MOTION V2: choreographed page transitions and tactile response */
+.feuch-scene-transition{transform-origin:50% 28%;will-change:opacity,transform}
+.feuch-scene-enter{animation:feuch-scene-arrive .56s cubic-bezier(.22,1,.36,1) both}
+.feuch-scene-exit{animation:feuch-scene-leave .24s cubic-bezier(.4,0,1,1) both;pointer-events:none}
+@keyframes feuch-scene-arrive{0%{opacity:0;transform:translate3d(0,22px,0) scale(.985);filter:blur(7px)}100%{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}}
+@keyframes feuch-scene-leave{to{opacity:0;transform:translate3d(0,-14px,0) scale(.992);filter:blur(6px)}}
+.fli-feuchian .feuch-entry{animation:feuch-hero-appear .94s cubic-bezier(.22,1,.36,1) both}
+@keyframes feuch-hero-appear{0%{opacity:0;transform:translateY(28px)}100%{opacity:1;transform:translateY(0)}}
+.feuch-entry .feuch-emblem{animation:feuch-emblem-materialize 1.1s cubic-bezier(.22,1,.36,1) both}
+@keyframes feuch-emblem-materialize{from{opacity:0;transform:scale(.6) rotate(-36deg);filter:blur(12px)}to{opacity:1;transform:scale(1) rotate(0);filter:blur(0)}}
+.feuch-entry .fli-overline{animation:feuch-line-rise .65s .18s both}
+.feuch-entry h1{animation:feuch-line-rise .77s .27s both}
+.feuch-entry>p{animation:feuch-line-rise .77s .37s both}
+.feuch-entry-footer{animation:feuch-line-rise .77s .46s both}
+@keyframes feuch-line-rise{from{opacity:0;transform:translateY(18px);filter:blur(5px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+.fli-feuchian .fli-game-card{animation:feuch-card-materialize .65s cubic-bezier(.22,1,.36,1) both;transform-origin:center;touch-action:manipulation}
+@keyframes feuch-card-materialize{0%{opacity:0;transform:translateY(18px) scale(.96);filter:blur(5px)}100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+.fli-feuchian .fli-game-card:active{transform:scale(.955);border-color:rgba(103,244,224,.85);box-shadow:0 0 0 2px rgba(103,244,224,.14),0 0 45px rgba(103,244,224,.12)}
+.fli-feuchian .fli-game-icon{transition:transform .48s cubic-bezier(.2,1.35,.42,1),box-shadow .35s ease}
+.fli-feuchian .fli-game-card:is(:hover,:focus-visible) .fli-game-icon{transform:rotate(-7deg) scale(1.07);box-shadow:0 0 35px rgba(103,244,224,.15)}
+.feuch-scroll-reveal{opacity:0;transform:translateY(25px);transition:transform .8s cubic-bezier(.22,1,.36,1),opacity .8s ease}
+.feuch-scroll-reveal.feuch-in-view{opacity:1;transform:translateY(0)}
+.fli-feuchian .fli-portal-nav button,.fli-feuchian .fli-site-tool{transition:transform .22s cubic-bezier(.2,1,.3,1),color .25s ease,background .25s ease}
+.fli-feuchian .fli-portal-nav button:active,.fli-feuchian .fli-site-tool:active{transform:scale(.91)}
+/* Keep reduced-motion fully functional, including IntersectionObserver reveals */
+@media(prefers-reduced-motion:reduce){
+ .feuch-scene-transition,.feuch-entry .feuch-emblem,.feuch-entry h1,.feuch-entry>p,.feuch-entry-footer,.feuch-entry .fli-overline{animation:none!important;transition:none!important;filter:none!important;transform:none!important}
+ .feuch-scroll-reveal{opacity:1;transform:none;transition:none}
+}
