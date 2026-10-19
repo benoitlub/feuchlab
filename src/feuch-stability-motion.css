@@ -1,0 +1,38 @@
+/* Feuch Lab polish: lightweight motion and readable mobile cards.
+   Decorative motion only; existing click handling and game state remain unchanged. */
+.feuch-world .feuch-game-copy>span{
+  font-size:clamp(10px,2.5vw,12px);
+  line-height:1.42;
+  -webkit-line-clamp:3;
+  line-clamp:3;
+}
+.feuch-world .feuch-game-copy small{font-size:clamp(8px,1.85vw,10px)}
+.feuch-world .feuch-game-copy em{font-size:clamp(9px,2vw,11px)}
+.feuch-world .feuch-game-card{min-height:238px;padding-bottom:16px}
+.feuch-world .feuch-game-copy{padding-right:30px}
+.feuch-world .feuch-game-card:focus-visible,
+.feuch-world .feuch-feature:focus-visible,
+.feuch-world .feuch-primary-action:focus-visible{
+  outline:3px solid #75ffec;
+  outline-offset:3px;
+}
+.feuch-world .feuch-game-arrow{transition:transform .3s cubic-bezier(.2,.8,.2,1),background .3s}
+.feuch-world .feuch-game-card:hover .feuch-game-arrow,
+.feuch-world .feuch-game-card:focus-visible .feuch-game-arrow{transform:translate(2px,-2px);background:rgba(16,122,107,.3)}
+.feuch-world .feuch-primary-action>span{transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.feuch-world .feuch-primary-action:hover>span,
+.feuch-world .feuch-primary-action:focus-visible>span{transform:translateY(4px)}
+/* A very small ambient drift creates depth without full-screen scroll effects. */
+.feuch-world .feuch-hero-veil{animation:feuch-veil-breathe 13s ease-in-out infinite alternate;pointer-events:none}
+@keyframes feuch-veil-breathe{
+ from{opacity:.92}to{opacity:1}
+}
+.feuch-world .feuch-ambient i{pointer-events:none}
+@media(max-width:390px){
+  .feuch-world .feuch-game-card{min-height:236px}
+  .feuch-world .feuch-game-copy strong{font-size:clamp(18px,4.8vw,22px);line-height:1}
+}
+@media(prefers-reduced-motion:reduce){
+  .feuch-world .feuch-hero-veil{animation:none!important}
+  .feuch-world .feuch-game-arrow,.feuch-world .feuch-primary-action>span{transition:none!important}
+}
