@@ -11,6 +11,7 @@ import './training.css';
 import './pineal.css';
 import './quick-games.css';
 import './feuchian-front.css';
+import './feuch-day-bloom.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode><LabRoot /></React.StrictMode>,
