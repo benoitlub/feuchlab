@@ -70,7 +70,7 @@ export default function LabRoot() {
   }, [protocol, page]);
 
   const home = () => navigate('library');
-  const frame = (node: React.ReactNode) => <div className={`feuch-scene-transition ${closing ? 'feuch-scene-exit' : 'feuch-scene-enter'}`}>{node}</div>;
+  const frame = (node: React.ReactNode) => <main className={`feuch-protocol-world ${theme === 'light' ? 'feuch-day' : 'feuch-night'}`}><div className="feuch-protocol-backdrop" aria-hidden="true" /><div className={`feuch-protocol-content feuch-scene-transition ${closing ? 'feuch-scene-exit' : 'feuch-scene-enter'}`}>{node}</div></main>;
   if (protocol === 'dice') return frame(<FeuchDice onBack={home} />);
   if (protocol === 'walk') return frame(<div className="protocol-wrap"><button className="lab-home-fab" onClick={home}>⌂ LAB</button><App /></div>);
   if (protocol === 'silent') return frame(<SilentLink onBack={home} />);
