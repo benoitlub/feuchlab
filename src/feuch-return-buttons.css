@@ -1,0 +1,75 @@
+/* Feuch Lab — unified "return to laboratory" buttons, visual only.
+   Scope narrowly to existing return controls; no gameplay buttons affected. */
+.feuch-protocol-world{
+  --lab-return-gold:#eacb7d;
+  --lab-return-teal:#73f5e4;
+  --lab-return-shadow:rgba(3,16,23,.48);
+}
+.feuch-protocol-world.feuch-night{
+  --lab-return-gold:#dcc1ff;
+  --lab-return-teal:#92fff1;
+}
+.feuch-protocol-world :is(
+  .fd-header>button,
+  .silent-head>button.ghost,
+  .ghost-head>button.ghost,
+  .instant-head>button:first-child,
+  .training-head>button:first-child,
+  .quick-head>button:first-child,
+  .lab-home-fab
+){
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-height:40px;
+  min-width:76px;
+  padding:9px 13px;
+  border:1.5px solid var(--lab-return-gold);
+  border-radius:999px;
+  background:linear-gradient(160deg,rgba(13,119,114,.95),rgba(2,47,56,.97));
+  box-shadow:inset 0 1px rgba(255,246,206,.16),0 5px 15px var(--lab-return-shadow),0 0 0 2px rgba(235,198,115,.09);
+  color:#fff0c7;
+  font:600 11px/1.1 Montserrat,system-ui,sans-serif;
+  letter-spacing:.09em;
+  text-shadow:0 1px 8px rgba(0,0,0,.45);
+  white-space:nowrap;
+  cursor:pointer;
+  transition:transform .22s ease,box-shadow .22s ease,filter .22s ease;
+}
+.feuch-protocol-world :is(
+  .fd-header>button,
+  .silent-head>button.ghost,
+  .ghost-head>button.ghost,
+  .instant-head>button:first-child,
+  .training-head>button:first-child,
+  .quick-head>button:first-child,
+  .lab-home-fab
+):hover{
+  box-shadow:inset 0 1px rgba(255,246,206,.22),0 7px 22px var(--lab-return-shadow),0 0 16px rgba(69,232,209,.25);
+  filter:brightness(1.08);
+}
+.feuch-protocol-world :is(
+  .fd-header>button,
+  .silent-head>button.ghost,
+  .ghost-head>button.ghost,
+  .instant-head>button:first-child,
+  .training-head>button:first-child,
+  .quick-head>button:first-child,
+  .lab-home-fab
+):active{transform:scale(.97)}
+.feuch-protocol-world :is(
+  .fd-header>button,
+  .silent-head>button.ghost,
+  .ghost-head>button.ghost,
+  .instant-head>button:first-child,
+  .training-head>button:first-child,
+  .quick-head>button:first-child,
+  .lab-home-fab
+):focus-visible{outline:2px solid var(--lab-return-teal);outline-offset:3px}
+@media(max-width:390px){
+  .feuch-protocol-world :is(.fd-header>button,.silent-head>button.ghost,.ghost-head>button.ghost,.instant-head>button:first-child,.training-head>button:first-child,.quick-head>button:first-child,.lab-home-fab){min-width:68px;padding:8px 10px;font-size:10px;letter-spacing:.04em}
+}
+@media(prefers-reduced-motion:reduce){
+  .feuch-protocol-world :is(.fd-header>button,.silent-head>button.ghost,.ghost-head>button.ghost,.instant-head>button:first-child,.training-head>button:first-child,.quick-head>button:first-child,.lab-home-fab){transition:none}
+}
