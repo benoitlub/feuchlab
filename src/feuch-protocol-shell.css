@@ -1,0 +1,30 @@
+/* Shared Blacklace atmosphere for every existing game protocol.
+   Only a decorative external wrapper; never overlays a playable control. */
+.feuch-protocol-world{
+ --feuch-gold:#eacb7d;--feuch-teal:#12e5d1;
+ position:relative;isolation:isolate;min-height:100svh;padding:18px 0 40px;
+ background:radial-gradient(circle at 50% 0%,#176563 0%,#063b39 45%,#041a1c 100%);
+ color:#f8f2dd;
+}
+.feuch-protocol-backdrop{
+ position:fixed;z-index:-1;inset:0;pointer-events:none;
+ background:linear-gradient(180deg,rgba(1,23,24,.64),rgba(2,19,23,.9) 52%,#04191d),url('/feuchlab/blacklace-panorama-day.webp') center 22%/cover no-repeat;
+}
+.feuch-protocol-world.feuch-night{--feuch-gold:#dcbcff;--feuch-teal:#5effea;background:#07111f}
+.feuch-protocol-world.feuch-night .feuch-protocol-backdrop{
+ background:linear-gradient(180deg,rgba(4,10,39,.70),rgba(3,9,27,.94) 55%,#030a1d),url('/feuchlab/blacklace-panorama-day.webp') center 22%/cover no-repeat;
+}
+.feuch-protocol-content{position:relative;z-index:1;width:min(100%,1100px);margin:0 auto}
+.feuch-protocol-world .lab-home-fab{
+ border:1px solid var(--feuch-gold);border-radius:999px;
+ background:linear-gradient(145deg,#116b6d,#032f35);color:#ffe8b0;
+ box-shadow:0 4px 20px rgba(0,0,0,.25);
+}
+.feuch-protocol-world :is(button,a):focus-visible{outline:2px solid #75ffdf;outline-offset:3px}
+.feuch-protocol-world::after{content:'✦';position:fixed;z-index:0;right:15px;bottom:10px;color:var(--feuch-gold);font-size:17px;opacity:.28;pointer-events:none}
+.feuch-sator-monitor.is-unavailable .feuch-sator-wave{opacity:.22;animation:none}
+.feuch-sator-monitor.is-checking .feuch-sator-wave{opacity:.45}
+.feuch-sator-cycle{color:#eacb7d;font-size:.83em}
+@media (prefers-reduced-motion:reduce){
+ .feuch-protocol-world *, .feuch-protocol-world *::before,.feuch-protocol-world *::after{animation:none!important}
+}
