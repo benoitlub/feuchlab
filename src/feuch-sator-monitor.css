@@ -1,0 +1,13 @@
+.feuch-sator-monitor{position:absolute;top:92px;right:max(14px,calc((100vw - 1200px)/2 + 26px));z-index:22;display:flex;flex-direction:column;width:clamp(150px,30vw,235px);padding:12px 14px 11px;gap:6px;border:1px solid rgba(236,201,139,.72);border-radius:20px;background:linear-gradient(140deg,rgba(1,32,44,.96),rgba(4,15,38,.95));box-shadow:0 10px 32px rgba(0,0,0,.35),inset 0 1px rgba(255,230,191,.16),0 0 17px rgba(45,238,234,.16);color:#f8eddb;text-decoration:none;backdrop-filter:blur(12px);transition:transform .26s ease,box-shadow .26s ease}
+.feuch-sator-monitor:hover,.feuch-sator-monitor:focus-visible{transform:translateY(-3px);box-shadow:0 14px 32px rgba(0,0,0,.42),0 0 23px rgba(109,238,239,.35)}
+.feuch-sator-monitor:focus-visible{outline:2px solid #7fffea;outline-offset:3px}
+.feuch-sator-heading{font:600 clamp(10px,1.65vw,14px)/1.15 'Cormorant Garamond',Georgia,serif;letter-spacing:.15em;white-space:nowrap}
+.feuch-sator-phase{font:500 clamp(8px,1.5vw,10px)/1.2 Montserrat,system-ui,sans-serif;letter-spacing:.1em;color:#bfd6d8}.feuch-sator-phase b{color:#e68bfb;font-weight:600}
+.feuch-sator-signal{display:block;width:100%;height:45px;filter:drop-shadow(0 0 4px rgba(214,61,253,.76))}
+.feuch-sator-wave{stroke-dasharray:420;stroke-dashoffset:0;animation:feuch-sator-pulse 8s ease-in-out infinite}
+@keyframes feuch-sator-pulse{0%,100%{opacity:.75;stroke-dashoffset:0}50%{opacity:1;stroke-dashoffset:30}}
+.feuch-sator-bottom{display:flex;align-items:center;gap:7px;min-width:0;font:600 clamp(7px,1.3vw,9px)/1.25 Montserrat,system-ui,sans-serif;letter-spacing:.05em;color:#d6f7f5}
+.feuch-sator-cube{font-size:17px;color:#74e7ef}.feuch-sator-arrow{margin-left:auto;display:grid;place-items:center;flex:none;width:23px;height:23px;border:1px solid #eacb7d;border-radius:50%;font-size:14px;color:#f3da9a}
+@media(max-width:680px){.feuch-sator-monitor{top:100px;right:12px;width:min(38vw,170px);padding:9px 10px;gap:3px;border-radius:15px}.feuch-sator-signal{height:29px}.feuch-sator-heading{font-size:9px;letter-spacing:.08em}.feuch-sator-phase{font-size:8px;letter-spacing:0}.feuch-sator-bottom{font-size:7px;letter-spacing:0}.feuch-sator-arrow{width:20px;height:20px}}
+@media(max-width:390px){.feuch-sator-monitor{top:126px;width:140px}.feuch-sator-heading{font-size:8.5px}.feuch-sator-bottom{font-size:6.5px}}
+@media(prefers-reduced-motion:reduce){.feuch-sator-monitor,.feuch-sator-wave{animation:none!important;transition:none!important}}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import LabJourney from './LabJourney';
+import SatorMonitor from './SatorMonitor';
 
 export type Page = 'home' | 'games' | 'lab' | 'explore' | 'profile';
 export type Lang = 'fr' | 'en' | 'es';
@@ -37,6 +38,7 @@ export default function LabPortal({ page, setPage, lang, setLang, theme, setThem
         <button className="feuch-theme" type="button" onClick={() => changeTheme(theme === 'light' ? 'dark' : 'light')} aria-label={theme === 'light' ? t.night : t.day}><span className={theme === 'light' ? 'active' : ''}>☀</span><span className={theme === 'dark' ? 'active' : ''}>☾</span></button>
       </div>
     </header>
+    {page === "home" && <SatorMonitor lang={lang} />}
 
     {page === 'lab' && <section className="feuch-panel feuch-panel-lab"><span className="feuch-panel-kicker">⚗ FEUCH RESEARCH</span><h1>{t.lab}</h1><p>{t.labIntro}</p><div className="feuch-panel-grid"><article><h2>{t.journey}</h2><LabJourney /></article><article><h2>{t.archive}</h2><LabJourney archive /></article></div></section>}
     {page === 'explore' && <section className="feuch-panel"><span className="feuch-panel-kicker">⌖ BLACKLACE ISLAND</span><h1>{t.explore}</h1><p>{t.exploreIntro}</p><div className="feuch-world-links">{externalProjects.map(project => <a href={project.url} target="_blank" rel="noopener noreferrer" key={project.name}><span className="feuch-link-orb">↗</span><strong>{project.name}</strong><small>{project.description[lang]}</small></a>)}</div></section>}
