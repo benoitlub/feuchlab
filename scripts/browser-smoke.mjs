@@ -1,17 +1,27 @@
-import { chromium } from 'playwright';
-const browser = await chromium.launch({headless:true});
-const page = await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
-const errors=[];
-page.on('pageerror', e=>errors.push(e.message));
+import { createRequire } from 'node:module';
+import { mkdir } from 'node:fs/promises';
+const require = createRequire('/tmp/qa-playwright/package.json');
+const { chromium } = require('playwright');
+const target = 'http://127.0.0.1:4173/feuchlab/';
+let ready = false;
+for (let attempt = 0; attempt < 40; attempt++) {
+  try { if ((await fetch(target)).ok()) { ready = true; break; } } catch {}
+  await new Promise(resolve => setTimeout(resolve, 250));
+}
+if (!ready) throw new Error('Built application did not start');
+const browser = await chromium.launch({ headless: true });
 try {
-  const response=await page.goto('http://127.0.0.1:4173/feuchlab/',{waitUntil:'networkidle'});
-  if (!response?.ok()) throw new Error('Page failed to load: '+response?.status());
-  await page.locator('body').waitFor();
+  const page = await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  const response = await page.goto(target,{waitUntil:'networkidle'});
+  if (!response?.ok()) throw new Error('Page failed to load');
   const visible = await page.locator('body').innerText();
-  if(!/Feuch|laboratoire|Welcome|Bienvenid/i.test(visible)) throw new Error('Feuch Lab home content not rendered');
-  if(visible.trim().length<50) throw new Error('Blank screen detected');
-  if(errors.length) throw new Error('JavaScript runtime errors: '+errors.join('; '));
-  const htmlWidth=await page.evaluate(()=>document.documentElement.scrollWidth);
-  if(htmlWidth>405) throw new Error('Mobile horizontal overflow: '+htmlWidth);
-  console.log('Feuch Lab mobile React smoke PASS');
+  if (visible.trim().length < 50 || !/Feuch|laboratoire|Welcome|Bienvenid/i.test(visible)) throw new Error('Application content missing');
+  if (errors.length) throw new Error('Runtime errors: '+errors.join('; '));
+  const width = await page.evaluate(()=>document.documentElement.scrollWidth);
+  if(width > 405) throw new Error('Horizontal overflow: '+width);
+  await mkdir('.qa',{recursive:true});
+  await page.screenshot({path:'.qa/mobile.png',fullPage:true});
+  console.log('Built application mobile smoke passed');
 } finally { await browser.close(); }

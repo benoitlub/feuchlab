@@ -1,10 +1,12 @@
 name: Feuch Lab browser smoke
 on:
   pull_request:
+  push:
     branches: [main]
-  workflow_dispatch:
+permissions:
+  contents: read
 jobs:
-  smoke:
+  mobile:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -15,11 +17,17 @@ jobs:
       - run: npm install
       - run: npm run typecheck
       - run: npm run build
-      - name: Install Playwright
+      - name: Install isolated browser test dependencies
         run: |
-          npm install --no-save playwright
-          npx playwright install --with-deps chromium
-      - name: Browser smoke on mobile viewport
+          npm install --prefix /tmp/qa-playwright --ignore-scripts --no-audit --no-fund playwright
+          npx --prefix /tmp/qa-playwright playwright install --with-deps chromium
+      - name: Check the built site on a mobile viewport
         run: |
-          npm run dev -- --host 127.0.0.1 --port 4173 > /tmp/feuch-vite.log 2>&1 &
+          npx vite preview --host 127.0.0.1 --port 4173 > /tmp/qa-vite.log 2>&1 &
           node scripts/browser-smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mobile-browser-check
+          path: .qa/
+          if-no-files-found: ignore
