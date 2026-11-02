@@ -29,5 +29,5 @@ jobs:
         if: always()
         with:
           name: mobile-browser-check
-          path: .qa/
+          path: qa-output/
           if-no-files-found: ignore
